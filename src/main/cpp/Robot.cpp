@@ -13,6 +13,7 @@
 #include <frc/motorcontrol/MotorControllerGroup.h>
 #include <cameraserver/CameraServer.h>
 #include <iostream>
+#include <fmt/format.h>
 
 #include <networktables/DoubleTopic.h>
 #include <networktables/NetworkTable.h>
@@ -63,26 +64,16 @@ class Robot : public frc::TimedRobot
 	bool squareInputs = false;
 
 public:
-double x; double y;
+	double x;
+	double y;
+	nt::DoubleSubscriber xSub;
+	nt::DoubleSubscriber ySub;
 	void RobotInit()
 	{
 		auto inst = nt::NetworkTableInstance::GetDefault();
 		auto table = inst.GetTable("datatable");
-
-		auto xPub = table->GetDoubleTopic("x").Publish();
-		auto yPub = table->GetDoubleTopic("y").Publish();
-
-		xPub.Set(0.69);
-		yPub.Set(4.20);
-
-		// wehrufas8fh8ushfosdfiuhiosudhfioudfsoiigsd
-		
-		auto xSub = table->GetDoubleTopic("x").Subscribe(0.0);
-		auto ySub = table->GetDoubleTopic("y").Subscribe(0.0);
-
-		x = xSub.Get();
-		y = ySub.Get();
-
+		xSub = table->GetDoubleTopic("x").Subscribe(0.0);
+		ySub = table->GetDoubleTopic("y").Subscribe(0.0);
 
 		/**
 		 * The RestoreFactoryDefaults method can be used to reset the configuration parameters
@@ -188,7 +179,9 @@ double x; double y;
 
 	void AutonomousPeriodic()
 	{
-		std::cout << "Autonomous test" << std::endl;
+		x = xSub.Get();
+		y = ySub.Get();
+		fmt::print("X: {} Y: {}\n", x, y);
 	}
 };
 
