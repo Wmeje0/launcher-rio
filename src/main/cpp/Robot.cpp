@@ -72,8 +72,8 @@ public:
 	{
 		auto inst = nt::NetworkTableInstance::GetDefault();
 		auto table = inst.GetTable("datatable");
-		xSub = table->GetDoubleTopic("x").Subscribe(0.0);
-		ySub = table->GetDoubleTopic("y").Subscribe(0.0);
+		xSub = table->GetDoubleTopic("cones").Subscribe(0.0);
+		ySub = table->GetDoubleTopic("cubes").Subscribe(0.0);
 
 		/**
 		 * The RestoreFactoryDefaults method can be used to reset the configuration parameters
@@ -181,7 +181,7 @@ public:
 	{
 		x = xSub.Get();
 		y = ySub.Get();
-		fmt::print("X: {} Y: {}\n", x, y);
+		fmt::print("Cones: {} Cubes: {}\n", x, y);
 	}
 };
 
