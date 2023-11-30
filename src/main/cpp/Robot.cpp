@@ -182,6 +182,13 @@ public:
 		x = xSub.Get();
 		y = ySub.Get();
 		fmt::print("Cones: {} Cubes: {}\n", x, y);
+
+		if (x > y)
+		{
+			m_robotDrive.TankDrive(-speedMulFactor, -speedMulFactor, squareInputs);
+		} else if (y > x) {
+		m_robotDrive.TankDrive(speedMulFactor, speedMulFactor, squareInputs);
+		}
 	}
 };
 
