@@ -70,11 +70,6 @@ public:
 	nt::DoubleSubscriber ySub;
 	void RobotInit()
 	{
-		auto inst = nt::NetworkTableInstance::GetDefault();
-		auto table = inst.GetTable("datatable");
-		xSub = table->GetDoubleTopic("cones").Subscribe(0.0);
-		ySub = table->GetDoubleTopic("cubes").Subscribe(0.0);
-
 		/**
 		 * The RestoreFactoryDefaults method can be used to reset the configuration parameters
 		 * in the SPARK MAX to their factory default state. If no argument is passed, these
@@ -86,7 +81,10 @@ public:
 		m_rightRearMotor.RestoreFactoryDefaults();
 
 		m_rightMotors.SetInverted(true);
+	}
 
+	void TeleopInit()
+	{
 		std::cout << "Speed mode set to " << speedMulFactor << ", drive mode set to " << driveMode << "\n";
 		std::cout << "Square inputs set to " << squareInputs << "\n";
 	}
@@ -175,6 +173,10 @@ public:
 	void AutonomousInit()
 	{
 		std::cout << "Autonomous enabled" << std::endl;
+		auto inst = nt::NetworkTableInstance::GetDefault();
+		auto table = inst.GetTable("datatable");
+		xSub = table->GetDoubleTopic("cones").Subscribe(0.0);
+		ySub = table->GetDoubleTopic("cubes").Subscribe(0.0);
 	}
 
 	void AutonomousPeriodic()
