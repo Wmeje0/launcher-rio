@@ -14,11 +14,14 @@
 #include <cameraserver/CameraServer.h>
 #include <iostream>
 #include <fmt/format.h>
+#include <frc/SerialPort.h>
 
 #include <networktables/DoubleTopic.h>
 #include <networktables/NetworkTable.h>
 #include <networktables/NetworkTableInstance.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/I2C.h>
+#include <ctre/Phoenix.h>
 
 class Robot : public frc::TimedRobot
 {
@@ -35,11 +38,6 @@ class Robot : public frc::TimedRobot
 	 * The example below initializes four brushless motors with CAN IDs 1, 2, 3 and 4. Change
 	 * these parameters to match your setup
 	 */
-	static const int leftFrontDeviceID = 2, leftRearDeviceID = 3, rightFrontDeviceID = 4, rightRearDeviceID = 5;
-	rev::CANSparkMax m_leftFrontMotor{leftFrontDeviceID, rev::CANSparkMax::MotorType::kBrushed};
-	rev::CANSparkMax m_rightFrontMotor{rightFrontDeviceID, rev::CANSparkMax::MotorType::kBrushed};
-	rev::CANSparkMax m_leftRearMotor{leftRearDeviceID, rev::CANSparkMax::MotorType::kBrushed};
-	rev::CANSparkMax m_rightRearMotor{rightRearDeviceID, rev::CANSparkMax::MotorType::kBrushed};
 
 	/**
 	 * In RobotInit() below, we will group left and right motors using the MotorControllerGroup class.
@@ -48,12 +46,24 @@ class Robot : public frc::TimedRobot
 	 * Whatever commands are sent to them will be automatically forwarded to the motors.
 	 */
 
-	frc::MotorControllerGroup m_leftMotors{m_leftFrontMotor, m_leftRearMotor};
-	frc::MotorControllerGroup m_rightMotors{m_rightFrontMotor, m_rightRearMotor};
+	WPI_VictorSPX victorSPX1{1};
+	WPI_VictorSPX victorSPX2{2};
+	WPI_VictorSPX victorSPX3{3};
+	WPI_VictorSPX victorSPX4{4};
+
+	// Define MotorControllerGroup objects using references
+	frc::MotorControllerGroup m_leftMotors{victorSPX2, victorSPX3};
+	frc::MotorControllerGroup m_rightMotors{victorSPX1, victorSPX4};
 
 	frc::DifferentialDrive m_robotDrive{m_leftMotors, m_rightMotors};
 
 	frc::XboxController pad{0};
+
+	frc::SerialPort serialPort{115200, frc::SerialPort::kMXP};
+
+	// frc::Timer m_timer;
+
+	// m_timer.Start();
 
 	short driveMode = 1;
 
@@ -66,19 +76,26 @@ class Robot : public frc::TimedRobot
 public:
 	double x;
 	double y;
+
 	nt::DoubleSubscriber xSub;
 	nt::DoubleSubscriber ySub;
+
 	void RobotInit()
 	{
+		victorSPX1.Set(ControlMode::PercentOutput, 0);
+		victorSPX2.Set(ControlMode::PercentOutput, 0);
+		victorSPX3.Set(ControlMode::PercentOutput, 0);
+		victorSPX4.Set(ControlMode::PercentOutput, 0);
+
 		/**
 		 * The RestoreFactoryDefaults method can be used to reset the configuration parameters
 		 * in the SPARK MAX to their factory default state. If no argument is passed, these
 		 * parameters will not persist between power cycles
 		 */
-		m_leftFrontMotor.RestoreFactoryDefaults();
-		m_rightFrontMotor.RestoreFactoryDefaults();
-		m_leftRearMotor.RestoreFactoryDefaults();
-		m_rightRearMotor.RestoreFactoryDefaults();
+		victorSPX1.ConfigFactoryDefault();
+		victorSPX2.ConfigFactoryDefault();
+		victorSPX3.ConfigFactoryDefault();
+		victorSPX4.ConfigFactoryDefault();
 
 		m_rightMotors.SetInverted(true);
 	}
@@ -91,7 +108,10 @@ public:
 
 	void TeleopPeriodic()
 	{
-		std::cout << x << std::endl;
+		char buffer[256];
+
+		//std::cout << x << std::endl;
+		std::cout << serialPort.GetBytesReceived() << std::endl;
 		// Drive the robot
 		switch (driveMode)
 		{
@@ -173,24 +193,33 @@ public:
 	void AutonomousInit()
 	{
 		std::cout << "Autonomous enabled" << std::endl;
-		auto inst = nt::NetworkTableInstance::GetDefault();
-		auto table = inst.GetTable("datatable");
-		xSub = table->GetDoubleTopic("cones").Subscribe(0.0);
-		ySub = table->GetDoubleTopic("cubes").Subscribe(0.0);
+		// auto inst = nt::NetworkTableInstance::GetDefault();
+		// auto table = inst.GetTable("datatable");
+		// xSub = table->GetDoubleTopic("cones").Subscribe(0.0);
+		// ySub = table->GetDoubleTopic("cubes").Subscribe(0.0);
+		// m_timer.Restart();
 	}
 
 	void AutonomousPeriodic()
 	{
-		x = xSub.Get();
-		y = ySub.Get();
-		fmt::print("Cones: {} Cubes: {}\n", x, y);
+		// if (m_timer.Get() < 2_s) {
+		// 	// Drive forwards half speed, make sure to turn input squaring off
+		// 	m_robotDrive.ArcadeDrive(0.5, 0.0, false);
+		// } else {
+		// 	// Stop robot
+		// 	m_robotDrive.ArcadeDrive(0.0, 0.0, false);
+		// }
 
-		if (x > y)
-		{
-			m_robotDrive.TankDrive(-speedMulFactor, -speedMulFactor, squareInputs);
-		} else if (y > x) {
-		m_robotDrive.TankDrive(speedMulFactor, speedMulFactor, squareInputs);
-		}
+		// x = xSub.Get();
+		// y = ySub.Get();
+		// fmt::print("Cones: {} Cubes: {}\n", x, y);
+
+		// if (x > y)
+		// {
+		// 	m_robotDrive.TankDrive(-speedMulFactor, -speedMulFactor, squareInputs);
+		// } else if (y > x) {
+		// m_robotDrive.TankDrive(speedMulFactor, speedMulFactor, squareInputs);
+		// }
 	}
 };
 
