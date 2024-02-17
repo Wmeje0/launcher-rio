@@ -265,7 +265,7 @@ public:
 				launcherLoadTalon.Set(ControlMode::PercentOutput, 0);
 				launchTalon1.Set(ControlMode::PercentOutput, launcherSpeed);
 			case 2:
-				if (launcherWait > 5) launcherMode = 3;
+				if (launcherWait > 100) launcherMode = 3;
 				else if (ringoOutLimit.Get()) 
 				{
 					launcherMode = 0;
