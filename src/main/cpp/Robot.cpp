@@ -69,7 +69,6 @@ class Robot : public frc::TimedRobot
 
 	frc::SerialPort serialPort{115200, frc::SerialPort::kMXP};
 
-	// frc::Timer m_timer;
 
 	// m_timer.Start();
 
@@ -84,7 +83,7 @@ class Robot : public frc::TimedRobot
 	short launcherMode = 0; // 0 - ready for pickup, 1 - loaded, 2 - awaiting ejection confirm, 3 - failiure
 	const float launcherSpeed = 1;
 	const float loaderSpeed = 0.2;
-	short launcherWait = 0;
+	frc::Timer launcherWait;
 	bool launcherWaitStart = false;
 
 public:
@@ -259,18 +258,22 @@ public:
 				if (pad.GetLeftTriggerAxis() >= 0.3) // temporary shot input, subject to change
 				{
 					launcherMode = 2;
-					launcherWait = 0;
-					launcherWaitStart = true;
+					launcherWait.Start();
 				} 
 				launcherLoadTalon.Set(ControlMode::PercentOutput, 0);
 				launchTalon1.Set(ControlMode::PercentOutput, launcherSpeed);
 			case 2:
-				if (launcherWait > 100) launcherMode = 3;
+				if (launcherWait.Get() > 2_s) 
+				{
+					launcherMode = 3;
+					launcherWait.Stop();
+					launcherWait.Reset();
+				}
 				else if (ringoOutLimit.Get()) 
 				{
 					launcherMode = 0;
-					launcherWait = 0;
-					launcherWaitStart = false;
+					launcherWait.Stop();
+					launcherWait.Reset();
 				}
 				launcherLoadTalon.Set(ControlMode::PercentOutput, loaderSpeed);
 				launchTalon1.Set(ControlMode::PercentOutput, launcherSpeed);
@@ -278,7 +281,6 @@ public:
 				launcherLoadTalon.Set(ControlMode::PercentOutput, 0);
 				launchTalon1.Set(ControlMode::PercentOutput, 0);
 		}
-		if (launcherWaitStart) launcherWait += 1;
 	}
 };
 
