@@ -9,20 +9,34 @@
 #include <frc/TimedRobot.h>
 #include <frc/drive/DifferentialDrive.h>
 #include <frc/DigitalInput.h>
-#include "rev/CANSparkMax.h"
 #include <frc/XboxController.h>
 #include <frc/motorcontrol/MotorControllerGroup.h>
 #include <cameraserver/CameraServer.h>
 #include <iostream>
 #include <fmt/format.h>
 #include <frc/SerialPort.h>
-
+#include <frc/motorcontrol/PWMSparkMax.h>
 #include <networktables/DoubleTopic.h>
 #include <networktables/NetworkTable.h>
 #include <networktables/NetworkTableInstance.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/I2C.h>
 #include <ctre/Phoenix.h>
+
+class RingoShooter
+{
+private:
+	frc::PWMSparkMax loader{0};
+	frc::PWMSparkMax shooter{9};
+	bool isAvailable;
+public:
+	auto startLoadingSequence() -> void
+	{
+		if (isAvailable) {
+			//TODO
+		}
+	}
+};
 
 class Robot : public frc::TimedRobot
 {
@@ -47,10 +61,10 @@ class Robot : public frc::TimedRobot
 	 * Whatever commands are sent to them will be automatically forwarded to the motors.
 	 */
 
-	WPI_VictorSPX victorSPX1{1};
-	WPI_VictorSPX victorSPX2{2};
-	WPI_VictorSPX victorSPX3{3};
-	WPI_VictorSPX victorSPX4{4};
+	// WPI_VictorSPX victorSPX1{1};
+	// WPI_VictorSPX victorSPX2{2};
+	// WPI_VictorSPX victorSPX3{3};
+	// WPI_VictorSPX victorSPX4{4};
 
 	WPI_TalonSRX launcherLoadTalon{5}; // IDs temporary, controllers do not exist physically yet
 	WPI_TalonSRX launchTalon1{6};
@@ -60,26 +74,22 @@ class Robot : public frc::TimedRobot
 	frc::DigitalInput ringoOutLimit{1}; // IDs also temporary
 
 	// Define MotorControllerGroup objects using references
-	frc::MotorControllerGroup m_leftMotors{victorSPX2, victorSPX3};
-	frc::MotorControllerGroup m_rightMotors{victorSPX1, victorSPX4};
+	// frc::MotorControllerGroup m_leftMotors{victorSPX2, victorSPX3};
+	// frc::MotorControllerGroup m_rightMotors{victorSPX1, victorSPX4};
 
-	frc::DifferentialDrive m_robotDrive{m_leftMotors, m_rightMotors};
+	// frc::DifferentialDrive m_robotDrive{m_leftMotors, m_rightMotors};
 
-	frc::XboxController pad{0};
+	frc::Joystick m_stick{0};
 
-	frc::SerialPort serialPort{115200, frc::SerialPort::kMXP};
+	// frc::XboxController pad{0};
 
-	// frc::Timer m_timer;
-
-	// m_timer.Start();
-
-	short driveMode = 1;
+	// short driveMode = 1;
 
 	// Variable speedMulFactor is the value by which the input to the motors is multiplied
-	float speedMulFactor = 0.4;
+	// float speedMulFactor = 0.4;
 
-	const float dPadSpeed = 0.5;
-	bool squareInputs = false;
+	// const float dPadSpeed = 0.5;
+	// bool squareInputs = false;
 
 	short launcherMode = 0; // 0 - ready for pickup, 1 - loaded, 2 - awaiting ejection confirm, 3 - failiure
 	const float launcherSpeed = 1;
@@ -88,32 +98,23 @@ class Robot : public frc::TimedRobot
 	bool launcherWaitStart = false;
 
 public:
-	double x;
-	double y;
-
-	nt::DoubleSubscriber xSub;
-	nt::DoubleSubscriber ySub;
-
 	void RobotInit()
 	{
-		victorSPX1.Set(ControlMode::PercentOutput, 0);
-		victorSPX2.Set(ControlMode::PercentOutput, 0);
-		victorSPX3.Set(ControlMode::PercentOutput, 0);
-		victorSPX4.Set(ControlMode::PercentOutput, 0);
-		
-		launcherLoadTalon.Set(ControlMode::PercentOutput, 0);
-		launchTalon1.Set(ControlMode::PercentOutput, 0);
-		launchTalon2.Set(ControlMode::Follower, 6);
+
+		// victorSPX1.Set(ControlMode::PercentOutput, 0);
+		// victorSPX2.Set(ControlMode::PercentOutput, 0);
+		// victorSPX3.Set(ControlMode::PercentOutput, 0);
+		// victorSPX4.Set(ControlMode::PercentOutput, 0);
 
 		/**
 		 * The RestoreFactoryDefaults method can be used to reset the configuration parameters
 		 * in the SPARK MAX to their factory default state. If no argument is passed, these
 		 * parameters will not persist between power cycles
 		 */
-		victorSPX1.ConfigFactoryDefault();
-		victorSPX2.ConfigFactoryDefault();
-		victorSPX3.ConfigFactoryDefault();
-		victorSPX4.ConfigFactoryDefault();
+		// victorSPX1.ConfigFactoryDefault();
+		// victorSPX2.ConfigFactoryDefault();
+		// victorSPX3.ConfigFactoryDefault();
+		// victorSPX4.ConfigFactoryDefault();
 
 		launcherLoadTalon.ConfigFactoryDefault();
 		launchTalon1.ConfigFactoryDefault();
@@ -125,127 +126,97 @@ public:
 
 	void TeleopInit()
 	{
-		std::cout << "Speed mode set to " << speedMulFactor << ", drive mode set to " << driveMode << "\n";
-		std::cout << "Square inputs set to " << squareInputs << "\n";
+		//std::cout << "Speed mode set to " << speedMulFactor << ", drive mode set to " << driveMode << "\n";
+		//std::cout << "Square inputs set to " << squareInputs << "\n";
 		std::cout << "Launcher on" << "\n";
 	}
 
 	void TeleopPeriodic()
 	{
-		char buffer[256];
+		loader.Set(m_stick.GetY());
+		// switch (driveMode)
+		// {
+		// case 0:
+		// 	m_robotDrive.TankDrive(pad.GetLeftY() * speedMulFactor, pad.GetRightY() * speedMulFactor, squareInputs);
+		// 	break;
+		// case 1:
+		// 	m_robotDrive.ArcadeDrive(pad.GetLeftY() * speedMulFactor, pad.GetLeftX() * speedMulFactor, squareInputs);
+		// 	break;
+		// case 2:
+		// 	m_robotDrive.ArcadeDrive(pad.GetLeftY() * speedMulFactor, pad.GetRightX() * speedMulFactor, squareInputs);
+		// 	break;
+		// case 3:
+		// 	if (pad.GetPOV() == 0)
+		// 	{
+		// 		m_robotDrive.ArcadeDrive(dPadSpeed * speedMulFactor * -1, 0, squareInputs);
+		// 	}
+		// 	else if (pad.GetPOV() == 90)
+		// 	{
+		// 		m_robotDrive.ArcadeDrive(0, dPadSpeed * speedMulFactor, squareInputs);
+		// 	}
+		// 	else if (pad.GetPOV() == 180)
+		// 	{
+		// 		m_robotDrive.ArcadeDrive(dPadSpeed * speedMulFactor, 0, squareInputs);
+		// 	}
+		// 	else if (pad.GetPOV() == 270)
+		// 	{
+		// 		m_robotDrive.ArcadeDrive(0, dPadSpeed * speedMulFactor * -1, squareInputs);
+		// 	}
+		// 	break;
+		// }
 
-		//std::cout << x << std::endl;
-		std::cout << serialPort.GetBytesReceived() << std::endl;
-		// Drive the robot
-		switch (driveMode)
-		{
-		case 0:
-			m_robotDrive.TankDrive(pad.GetLeftY() * speedMulFactor, pad.GetRightY() * speedMulFactor, squareInputs);
-			break;
-		case 1:
-			m_robotDrive.ArcadeDrive(pad.GetLeftY() * speedMulFactor, pad.GetLeftX() * speedMulFactor, squareInputs);
-			break;
-		case 2:
-			m_robotDrive.ArcadeDrive(pad.GetLeftY() * speedMulFactor, pad.GetRightX() * speedMulFactor, squareInputs);
-			break;
-		case 3:
-			if (pad.GetPOV() == 0)
-			{
-				m_robotDrive.ArcadeDrive(dPadSpeed * speedMulFactor * -1, 0, squareInputs);
-			}
-			else if (pad.GetPOV() == 90)
-			{
-				m_robotDrive.ArcadeDrive(0, dPadSpeed * speedMulFactor, squareInputs);
-			}
-			else if (pad.GetPOV() == 180)
-			{
-				m_robotDrive.ArcadeDrive(dPadSpeed * speedMulFactor, 0, squareInputs);
-			}
-			else if (pad.GetPOV() == 270)
-			{
-				m_robotDrive.ArcadeDrive(0, dPadSpeed * speedMulFactor * -1, squareInputs);
-			}
-			break;
-		}
+		// // If one of the buttons pressed, change the drive mode
+		// if (pad.GetAButtonPressed() && driveMode != 0)
+		// {
+		// 	driveMode = 0;
+		// 	std::cout << "Drive mode changed to Tank Drive\n";
+		// }
+		// if (pad.GetBButtonPressed() && driveMode != 1)
+		// {
+		// 	driveMode = 1;
+		// 	std::cout << "Drive mode changed to Arcade Drive (one joystick)\n";
+		// }
+		// if (pad.GetXButtonPressed() && driveMode != 2)
+		// {
+		// 	driveMode = 2;
+		// 	std::cout << "Drive mode changed to Arcade Drive (two joysticks)\n";
+		// }
+		// if (pad.GetYButtonPressed() && driveMode != 3)
+		// {
+		// 	driveMode = 3;
+		// 	std::cout << "Drive mode changed to Simple Drive (d-pad)\n";
+		// }
 
-		// If one of the buttons pressed, change the drive mode
-		if (pad.GetAButtonPressed() && driveMode != 0)
-		{
-			driveMode = 0;
-			std::cout << "Drive mode changed to Tank Drive\n";
-		}
-		if (pad.GetBButtonPressed() && driveMode != 1)
-		{
-			driveMode = 1;
-			std::cout << "Drive mode changed to Arcade Drive (one joystick)\n";
-		}
-		if (pad.GetXButtonPressed() && driveMode != 2)
-		{
-			driveMode = 2;
-			std::cout << "Drive mode changed to Arcade Drive (two joysticks)\n";
-		}
-		if (pad.GetYButtonPressed() && driveMode != 3)
-		{
-			driveMode = 3;
-			std::cout << "Drive mode changed to Simple Drive (d-pad)\n";
-		}
+		// // If one of the bumpers were pressed, change the speed
+		// if (pad.GetRightBumperPressed() && speedMulFactor < 1)
+		// {
+		// 	speedMulFactor += 0.2;
+		// 	std::cout << "Speed Mode: " << speedMulFactor << "\n";
+		// }
+		// if (pad.GetLeftBumperPressed() && speedMulFactor > 0.4)
+		// {
+		// 	speedMulFactor -= 0.2;
+		// 	std::cout << "Speed Mode: " << speedMulFactor << "\n";
+		// }
 
-		// If one of the bumpers were pressed, change the speed
-		if (pad.GetRightBumperPressed() && speedMulFactor < 1)
-		{
-			speedMulFactor += 0.2;
-			std::cout << "Speed Mode: " << speedMulFactor << "\n";
-		}
-		if (pad.GetLeftBumperPressed() && speedMulFactor > 0.4)
-		{
-			speedMulFactor -= 0.2;
-			std::cout << "Speed Mode: " << speedMulFactor << "\n";
-		}
-
-		// If the Back button pressed change the square input
-		if (pad.GetBackButtonPressed())
-		{
-			squareInputs = !squareInputs;
-			std::cout << "Square Inputs: " << squareInputs << "\n";
-		}
-		if (squareInputs && speedMulFactor <= 0.3)
-		{
-			speedMulFactor = 0.4;
-		}
-
-		operateLauncher();
+		// // If the Back button pressed change the square input
+		// if (pad.GetBackButtonPressed())
+		// {
+		// 	squareInputs = !squareInputs;
+		// 	std::cout << "Square Inputs: " << squareInputs << "\n";
+		// }
+		// if (squareInputs && speedMulFactor <= 0.3)
+		// {
+		// 	speedMulFactor = 0.4;
+		// }
 	}
 
 	void AutonomousInit()
 	{
-		std::cout << "Autonomous enabled" << std::endl;
-		// auto inst = nt::NetworkTableInstance::GetDefault();
-		// auto table = inst.GetTable("datatable");
-		// xSub = table->GetDoubleTopic("cones").Subscribe(0.0);
-		// ySub = table->GetDoubleTopic("cubes").Subscribe(0.0);
-		// m_timer.Restart();
 	}
 
 	void AutonomousPeriodic()
 	{
-		// if (m_timer.Get() < 2_s) {
-		// 	// Drive forwards half speed, make sure to turn input squaring off
-		// 	m_robotDrive.ArcadeDrive(0.5, 0.0, false);
-		// } else {
-		// 	// Stop robot
-		// 	m_robotDrive.ArcadeDrive(0.0, 0.0, false);
-		// }
-
-		// x = xSub.Get();
-		// y = ySub.Get();
-		// fmt::print("Cones: {} Cubes: {}\n", x, y);
-
-		// if (x > y)
-		// {
-		// 	m_robotDrive.TankDrive(-speedMulFactor, -speedMulFactor, squareInputs);
-		// } else if (y > x) {
-		// m_robotDrive.TankDrive(speedMulFactor, speedMulFactor, squareInputs);
-		// }
 	}
 
 	void operateLauncher() 
