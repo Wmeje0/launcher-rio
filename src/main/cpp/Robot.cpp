@@ -219,7 +219,7 @@ public:
 	{
 	}
 
-	void operateLauncher() 
+	/*void operateLauncher() 
 	{
 		switch (launcherMode) {
 			case 0:
@@ -253,7 +253,7 @@ public:
 				launcherLoadTalon.Set(ControlMode::PercentOutput, 0);
 				launchTalon1.Set(ControlMode::PercentOutput, 0);
 		}
-	}
+	}*/
 };
 
 #ifndef RUNNING_FRC_TESTS
