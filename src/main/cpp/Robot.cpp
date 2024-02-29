@@ -18,19 +18,20 @@
 
 class Robot : public frc::TimedRobot
 {
-	Sequence *lr;
+	// This refernence contains the instance of the current sequence class
+	Sequence *currentSequence;
+	// Victor controllers classes used to drive the robot
 	WPI_VictorSPX victorSPX1{1}, victorSPX2{2}, victorSPX3{3}, victorSPX4{4};
 
 	// Define MotorControllerGroup objects using references
 	frc::MotorControllerGroup m_leftMotors{victorSPX2, victorSPX3}, m_rightMotors{victorSPX1, victorSPX4};
 	frc::DifferentialDrive m_robotDrive{m_leftMotors, m_rightMotors};
 
+	// Xbox pad class
 	frc::XboxController pad{0};
 
-	short driveMode = 1;
-	double speedMulFactor = 1.0;
-
 	// Variable speedMulFactor is the value by which the input to the motors is multiplied float speedMulFactor = 0.4;
+	double speedMulFactor = 1.0;
 
 	const float dPadSpeed = 0.5;
 	bool squareInputs = false;
@@ -38,7 +39,7 @@ class Robot : public frc::TimedRobot
 public:
 	void RobotInit()
 	{
-		lr = new LoadRingo();
+		// Prepare and config the controllers
 		victorSPX1.Set(ControlMode::PercentOutput, 0);
 		victorSPX2.Set(ControlMode::PercentOutput, 0);
 		victorSPX3.Set(ControlMode::PercentOutput, 0);
@@ -54,73 +55,49 @@ public:
 
 	void TeleopInit()
 	{
+		// Robot starts by LoadRingo sequence
+		currentSequence = new LoadRingo();
+
+		std::cout << "Loading Ringo!" << "\n";
 		std::cout << "Speed mode set to " << speedMulFactor << ", drive mode set to " << driveMode << "\n";
 		std::cout << "Square inputs set to " << squareInputs << "\n";
 	}
 
 	void TeleopPeriodic()
 	{
-		lr->start();
-		if (pad.GetAButtonPressed())
-		{
-			if (!lr->enabled)
-				lr->enabled = true;
-			else
-				lr->enabled = false;
-		}
+		// This is the main method called every 20 ms
+		
+		// Controll the arm & the shooter:
 
-		switch (driveMode)
-		{
-		case 0:
-			m_robotDrive.TankDrive(pad.GetLeftY() * speedMulFactor, pad.GetRightY() * speedMulFactor, squareInputs);
-			break;
-		case 1:
-			m_robotDrive.ArcadeDrive(pad.GetLeftY() * speedMulFactor, pad.GetLeftX() * speedMulFactor, squareInputs);
-			break;
-		case 2:
-			m_robotDrive.ArcadeDrive(pad.GetLeftY() * speedMulFactor, pad.GetRightX() * speedMulFactor, squareInputs);
-			break;
-		case 3:
-			if (pad.GetPOV() == 0)
-			{
-				m_robotDrive.ArcadeDrive(dPadSpeed * speedMulFactor * -1, 0, squareInputs);
-			}
-			else if (pad.GetPOV() == 90)
-			{
-				m_robotDrive.ArcadeDrive(0, dPadSpeed * speedMulFactor, squareInputs);
-			}
-			else if (pad.GetPOV() == 180)
-			{
-				m_robotDrive.ArcadeDrive(dPadSpeed * speedMulFactor, 0, squareInputs);
-			}
-			else if (pad.GetPOV() == 270)
-			{
-				m_robotDrive.ArcadeDrive(0, dPadSpeed * speedMulFactor * -1, squareInputs);
-			}
-			break;
-		}
+		// Start the current sequence
+		currentSequence->start();
+		
+		// Check if the sequence is changing
+		if (currentSequence->changeToLoadRingo()) currentSequence = new LoadRingo();
+		if (currentSequence->changeToSpeaker()) currentSequence = new ToSpeaker();
+		if (currentSequence->changeToAMP()) currentSequence = new ToAMP();
+		if (currentSequence->changeToReadyShoot()) currentSequence = new ReadyToShoot();
+		if (currentSequence->changeAfterShoot()) currentSequence = new AfterShoot();
 
-		// If one of the buttons pressed, change the drive mode
-		if (pad.GetAButtonPressed() && driveMode != 0)
-		{
-			driveMode = 0;
-			std::cout << "Drive mode changed to Tank Drive\n";
-		}
-		if (pad.GetBButtonPressed() && driveMode != 1)
-		{
-			driveMode = 1;
-			std::cout << "Drive mode changed to Arcade Drive (one joystick)\n";
-		}
-		if (pad.GetXButtonPressed() && driveMode != 2)
-		{
-			driveMode = 2;
-			std::cout << "Drive mode changed to Arcade Drive (two joysticks)\n";
-		}
-		if (pad.GetYButtonPressed() && driveMode != 3)
-		{
-			driveMode = 3;
-			std::cout << "Drive mode changed to Simple Drive (d-pad)\n";
-		}
+		// Controll the base:
+		Drive();
+	}
+
+	void AutonomousInit()
+	{
+
+	}
+
+	void AutonomousPeriodic()
+	{
+
+	}
+
+private:
+	void Drive()
+	{
+		// Drive the robot
+		m_robotDrive.TankDrive(pad.GetLeftY() * speedMulFactor, pad.GetRightY() * speedMulFactor, squareInputs);
 
 		// If one of the bumpers were pressed, change the speed
 		if (pad.GetRightBumperPressed() && speedMulFactor < 1)
@@ -144,14 +121,6 @@ public:
 		{
 			speedMulFactor = 0.4;
 		}
-	}
-
-	void AutonomousInit()
-	{
-	}
-
-	void AutonomousPeriodic()
-	{
 	}
 };
 
