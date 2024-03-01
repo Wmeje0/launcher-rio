@@ -57,7 +57,7 @@ Sequence* ToAMP::checkStateChange() {
 }
 
 Sequence* ReadyToShootSpeaker::checkStateChange() {
-    if (pad.getLeftTriggerAxis > 0.03 ) // button subject to change
+    if (pad.getLeftTriggerAxis() > 0.3 && pad.getRifhtTriggerAxis() > 0.3)
     { 
         return new LoadRingo;
     } 
