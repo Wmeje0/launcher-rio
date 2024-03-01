@@ -66,3 +66,14 @@ Sequence* ReadyToShootSpeaker::checkStateChange() {
         return this;
     }
 }
+
+Sequence* ReadyToShootAMP::checkStateChange() {
+    if (pad.getLeftTriggerAxis() > 0.3 && pad.getRifhtTriggerAxis() > 0.3)
+    { 
+        return new AfterShoot;
+    } 
+    else 
+    {
+        return this;
+    }
+}
