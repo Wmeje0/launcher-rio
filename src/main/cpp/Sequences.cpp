@@ -2,8 +2,9 @@
 #include <frc/DigitalInput.h>
 #include "Sequences.h"
 
-void LoadRingo::start()
-{  
+void LoadRingo::Update()
+{
+    if (ringoLimitSwitch.Get())
     {
         pickMotor.Set(1.0);
     }

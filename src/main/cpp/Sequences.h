@@ -6,9 +6,8 @@ protected:
     frc::DigitalInput limitSwitch{0};
 
 public:
-    bool enabled;
-    virtual auto start() -> void{};
-
+    // Basic method called in TeleopPeriodic
+    virtual auto Update() -> void{};
     // virtual auto stop() -> void{};
 
     // These methods returns 1 if the sequence is changing to another one
@@ -21,8 +20,7 @@ protected:
 class LoadRingo : public Sequence
 {
 public:
-    virtual auto start() -> void override;
-
+    virtual auto Update() -> void override;
     virtual auto checkStateChange() -> int{};
 
     private:
@@ -35,8 +33,7 @@ public:
 class MoveArm : public Sequence
 {
 public:
-    virtual auto start() -> void override;
-
+    virtual auto Update() -> void override;
     virtual auto checkStateChange() -> Sequence*{};
 
     private:
@@ -47,7 +44,7 @@ public:
 class ShootRingo : public Sequence
 {
 public:
-    virtual auto start() -> void override;
+    virtual auto Update() -> void override;
     virtual auto checkStateChange() -> Sequence*{};
 
     private:
@@ -57,7 +54,7 @@ public:
 class ReadyToShootSpeaker : public Sequence
 {
 public:
-    virtual auto start() -> void override;
+    virtual auto Update() -> void override;
     virtual auto checkStateChange() -> Sequence*{};
 
     private:
@@ -68,7 +65,7 @@ public:
 class ReadyToShootAMP : public Sequence
 {
 public:
-    virtual auto start() -> void override;
+    virtual auto Update() -> void override;
     virtual auto checkStateChange() -> Sequence*{};
 
     private:
@@ -78,7 +75,7 @@ public:
 class AfterShoot : public Sequence
 {
 public:
-    virtual auto start() -> void override;
+    virtual auto Update() -> void override;
     virtual auto checkStateChange() -> Sequence*{};
 
     private:
