@@ -1,39 +1,50 @@
 class Sequence
 {
+protected:
+    frc::PWMSparkMax rightMotor{0};
+    frc::PWMSparkMax leftMotor{9};
+    frc::DigitalInput limitSwitch{0};
+
 public:
-    // Basic method called in TeleopPeriodic
+    bool enabled;
     virtual auto start() -> void{};
+
     // virtual auto stop() -> void{};
 
     // These methods returns 1 if the sequence is changing to another one
     virtual auto checkStateChange() -> Sequence*{};
 protected:
     frc::XboxController pad{0};
+
 };
 
 class LoadRingo : public Sequence
 {
 public:
     virtual auto start() -> void override;
+
     virtual auto checkStateChange() -> int{};
 
     private:
         // Spark Max are temporary, we will change them to Victor & Talons
         frc::PWMSparkMax pickMotor{0};
         frc::DigitalInput ringoLimitSwitch{0};
+
 };
 
-class ToSpeaker : public Sequence
+class MoveArm : public Sequence
 {
 public:
     virtual auto start() -> void override;
+
     virtual auto checkStateChange() -> Sequence*{};
 
     private:
         // Local Variables
+
 };
 
-class ToAMP : public Sequence
+class ShootRingo : public Sequence
 {
 public:
     virtual auto start() -> void override;
@@ -73,3 +84,4 @@ public:
     private:
         frc::DigitalInput lowerLimitSwitch{1};
 };
+

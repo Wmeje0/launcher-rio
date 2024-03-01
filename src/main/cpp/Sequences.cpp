@@ -3,12 +3,7 @@
 #include "Sequences.h"
 
 void LoadRingo::start()
-{
-    if (ringoLimitSwitch.Get())
-    {
-        pickMotor.Set(0.0);
-    }
-    else
+{  
     {
         pickMotor.Set(1.0);
     }
@@ -88,3 +83,4 @@ Sequence* ReadyToShootAMP::checkStateChange() {
         return this;
     }
 }
+
