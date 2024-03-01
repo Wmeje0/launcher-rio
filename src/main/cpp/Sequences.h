@@ -7,7 +7,7 @@ public:
 
     // These methods returns 1 if the sequence is changing to another one
     virtual auto checkStateChange() -> Sequence*{};
-private:
+protected:
     frc::XboxController pad{0};
 };
 
@@ -71,5 +71,5 @@ public:
     virtual auto checkStateChange() -> Sequence*{};
 
     private:
-        // Local variables
+        frc::DigitalInput lowerLimitSwitch{1};
 };
