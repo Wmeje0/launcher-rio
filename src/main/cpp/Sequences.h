@@ -51,6 +51,7 @@ public:
 
     private:
         // Local variables
+        frc::XboxController pad{0};
 };
 
 class ReadyToShootAMP : public Sequence

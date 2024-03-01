@@ -55,3 +55,14 @@ Sequence* ToAMP::checkStateChange() {
         return this;
     }
 }
+
+Sequence* ReadyToShootSpeaker::checkStateChange() {
+    if (pad.getLeftTriggerAxis > 0.03 ) // button subject to change
+    { 
+        return new LoadRingo;
+    } 
+    else 
+    {
+        return this;
+    }
+}
