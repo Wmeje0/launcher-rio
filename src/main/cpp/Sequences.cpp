@@ -14,12 +14,12 @@ void LoadRingo::start()
     }
 }
 
-void LoadRingo::changeToLoadRingo()
+bool LoadRingo::changeToLoadRingo()
 {
     return 0;
 }
 
-void LoadRingo::changeToSpeaker()
+bool LoadRingo::changeToSpeaker()
 {
     if (ringoLimitSwitch.Get())
     {
@@ -31,17 +31,17 @@ void LoadRingo::changeToSpeaker()
     }
 }
 
-void LoadRingo::changeToLoadRingo()
+bool LoadRingo::changeToLoadRingo()
 {
     return 0;
 }
 
-void LoadRingo::changeToLoadRingo()
+bool LoadRingo::changeToLoadRingo()
 {
     return 0;
 }
 
-void LoadRingo::changeToLoadRingo()
+bool LoadRingo::changeToLoadRingo()
 {
     return 0;
 }

@@ -17,11 +17,11 @@ class LoadRingo : public Sequence
 {
 public:
     virtual auto start() -> void override;
-    virtual auto changeToLoadRingo() -> void override{};
-    virtual auto changeToSpeaker() -> void override{};
-    virtual auto changeToAMP() -> void override{};
-    virtual auto changeToReadyShoot() -> void override{};
-    virtual auto changeAfterShoot() -> void override{};
+    virtual auto changeToLoadRingo() -> bool override{};
+    virtual auto changeToSpeaker() -> bool override{};
+    virtual auto changeToAMP() -> bool override{};
+    virtual auto changeToReadyShoot() -> bool override{};
+    virtual auto changeAfterShoot() -> bool override{};
 
     private:
         // Spark Max are temporary, we will change them to Victor & Talons
@@ -33,11 +33,11 @@ class ToSpeaker : public Sequence
 {
 public:
     virtual auto start() -> void override;
-    virtual auto changeToLoadRingo() -> void override{};
-    virtual auto changeToSpeaker() -> void override{};
-    virtual auto changeToAMP() -> void override{};
-    virtual auto changeToReadyShoot() -> void override{};
-    virtual auto changeAfterShoot() -> void override{};
+    virtual auto changeToLoadRingo() -> bool override{};
+    virtual auto changeToSpeaker() -> bool override{};
+    virtual auto changeToAMP() -> bool override{};
+    virtual auto changeToReadyShoot() -> bool override{};
+    virtual auto changeAfterShoot() -> bool override{};
 
     private:
         // Local variables
@@ -47,11 +47,11 @@ class ToAMP : public Sequence
 {
 public:
     virtual auto start() -> void override;
-    virtual auto changeToLoadRingo() -> void override{};
-    virtual auto changeToSpeaker() -> void override{};
-    virtual auto changeToAMP() -> void override{};
-    virtual auto changeToReadyShoot() -> void override{};
-    virtual auto changeAfterShoot() -> void override{};
+    virtual auto changeToLoadRingo() -> bool override{};
+    virtual auto changeToSpeaker() -> bool override{};
+    virtual auto changeToAMP() -> bool override{};
+    virtual auto changeToReadyShoot() -> bool override{};
+    virtual auto changeAfterShoot() -> bool override{};
 
     private:
         // Local variables
@@ -61,11 +61,11 @@ class ReadyToShoot : public Sequence
 {
 public:
     virtual auto start() -> void override;
-    virtual auto changeToLoadRingo() -> void override{};
-    virtual auto changeToSpeaker() -> void override{};
-    virtual auto changeToAMP() -> void override{};
-    virtual auto changeToReadyShoot() -> void override{};
-    virtual auto changeAfterShoot() -> void override{};
+    virtual auto changeToLoadRingo() -> bool override{};
+    virtual auto changeToSpeaker() -> bool override{};
+    virtual auto changeToAMP() -> bool override{};
+    virtual auto changeToReadyShoot() -> bool override{};
+    virtual auto changeAfterShoot() -> bool override{};
 
     private:
         // Local variables
@@ -75,11 +75,11 @@ class AfterShoot : public Sequence
 {
 public:
     virtual auto start() -> void override;
-    virtual auto changeToLoadRingo() -> void override{};
-    virtual auto changeToSpeaker() -> void override{};
-    virtual auto changeToAMP() -> void override{};
-    virtual auto changeToReadyShoot() -> void override{};
-    virtual auto changeAfterShoot() -> void override{};
+    virtual auto changeToLoadRingo() -> bool override{};
+    virtual auto changeToSpeaker() -> bool override{};
+    virtual auto changeToAMP() -> bool override{};
+    virtual auto changeToReadyShoot() -> bool override{};
+    virtual auto changeAfterShoot() -> bool override{};
 
     private:
         // Local variables
