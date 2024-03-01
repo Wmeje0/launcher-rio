@@ -4,44 +4,25 @@
 
 void LoadRingo::start()
 {
-    if (ringoLimitSwitch.Get())
+    if (enabled)
     {
-        pickMotor.Set(0.0);
+        if (limitSwitch.Get())
+        {
+            rightMotor.Set(0.0);
+            leftMotor.Set(0.0);
+        }
+        else
+        {
+            rightMotor.Set(1.0);
+            leftMotor.Set(1.0);
+        }
     }
     else
-    {
-        pickMotor.Set(1.0);
-    }
+        stop();
 }
 
-void LoadRingo::changeToLoadRingo()
+void LoadRingo::stop()
 {
-    return 0;
-}
-
-void LoadRingo::changeToSpeaker()
-{
-    if (ringoLimitSwitch.Get())
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-void LoadRingo::changeToLoadRingo()
-{
-    return 0;
-}
-
-void LoadRingo::changeToLoadRingo()
-{
-    return 0;
-}
-
-void LoadRingo::changeToLoadRingo()
-{
-    return 0;
+    rightMotor.Set(0.0);
+    leftMotor.Set(0.0);
 }
