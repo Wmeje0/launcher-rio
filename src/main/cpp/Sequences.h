@@ -60,6 +60,7 @@ public:
     private:
         // Local variables
         frc::XboxController pad{0};
+        frc::DigitalInput ringoLimitSwitch{0};
 };
 
 class ReadyToShootAMP : public Sequence
@@ -70,6 +71,8 @@ public:
 
     private:
         // Local variables
+        frc::XboxController pad{0};
+        frc::DigitalInput ringoLimitSwitch{0};
 };
 
 class AfterShoot : public Sequence
