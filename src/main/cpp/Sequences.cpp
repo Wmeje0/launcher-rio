@@ -14,34 +14,44 @@ void LoadRingo::start()
     }
 }
 
-bool LoadRingo::changeToLoadRingo()
-{
-    return 0;
-}
-
-bool LoadRingo::changeToSpeaker()
-{
+Sequence* LoadRingo::checkStateChange() {
     if (ringoLimitSwitch.Get())
     {
-        return 1;
+        return new ToSpeaker;
     }
     else
     {
-        return 0;
+        return this;
     }
 }
 
-bool LoadRingo::changeToLoadRingo()
-{
-    return 0;
+
+Sequence* ToSpeaker::checkStateChange() {
+    if (pad.getAButtonPressed()) // button subject to change
+    { 
+        return new ToAMP;
+    } 
+    else if (pad.getBButtonPressed()) // button subject to change 
+    {
+        return new ReadyToShootSpeaker;
+    }
+    else 
+    {
+        return this;
+    }
 }
 
-bool LoadRingo::changeToLoadRingo()
-{
-    return 0;
-}
-
-bool LoadRingo::changeToLoadRingo()
-{
-    return 0;
+Sequence* ToAMP::checkStateChange() {
+    if (pad.getAButtonPressed()) // button subject to change
+    { 
+        return new ToSpeaker;
+    } 
+    else if (pad.getBButtonPressed()) // button subject to change 
+    {
+        return new ReadyToShootAMP;
+    }
+    else 
+    {
+        return this;
+    }
 }
